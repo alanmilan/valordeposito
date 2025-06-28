@@ -264,7 +264,7 @@
         const item = document.createElement("div");
         item.className = "item";
         item.dataset.valor = (premio.valor === "REPICKADO") ? "REPICKADO" : premio.valor;
-        item.innerHTML = `<div class="emoji">${premio.emoji}</div>${(premio.valor === "REPICKADO") ? premio.valor : `R$${premio.valor}`}`;
+        item.innerHTML = `<div class="emoji">${premio.emoji}</div>${(premio.valor === "REPICKADO") ? premio.valor : `$${premio.valor}`}`;
         roleta.appendChild(item);
         clones.push(item);
       }
@@ -339,7 +339,7 @@
 
         let textoPremio = premioFinal.valor === "REPICKADO" ? premioFinal.valor : `R$${premioFinal.valor}`;
         resultado.textContent = `Você ganhou: ${textoPremio}! 🎉`;
-        probReal.textContent = `Número sorteado: ${(r * 100).toFixed(2)}%`;
+        probReal.textContent = `Probabilidae: ${(r * 100).toFixed(2)}%`;
         isSpinning = false;
         spinBtn.disabled = false;
       }, 14000);
