@@ -241,7 +241,7 @@
       const ul = document.getElementById("listaPremios");
       ul.innerHTML = "";
       premios.forEach(p => {
-        let textoValor = (p.valor === "REPICKADO") ? p.valor : `R$${p.valor}`;
+        let textoValor = (p.valor === "REPICKADO") ? p.valor : `$${p.valor}`;
         ul.innerHTML += `<li>${p.emoji} ${Math.round(p.prob * 100)}% = ${textoValor}</li>`;
       });
     }
@@ -339,7 +339,7 @@
 
         let textoPremio = premioFinal.valor === "REPICKADO" ? premioFinal.valor : `R$${premioFinal.valor}`;
         resultado.textContent = `Você ganhou: ${textoPremio}! 🎉`;
-        probReal.textContent = `Probabilidae: ${(r * 100).toFixed(2)}%`;
+        probReal.textContent = `Probabilidade: ${(r * 100).toFixed(2)}%`;
         isSpinning = false;
         spinBtn.disabled = false;
       }, 14000);
