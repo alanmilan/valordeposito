@@ -322,7 +322,7 @@
 
         let textoPremio = premioFinal.valor === "REPICKADO" ? premioFinal.valor : `R$${premioFinal.valor}`;
         resultado.textContent = `Você ganhou: ${textoPremio}! 🎉`;
-        probReal.textContent = `Número sorteado: ${(r * 100).toFixed(2)}%`;
+        probReal.textContent = `Probabilidade: ${(r * 100).toFixed(2)}%`;
         isSpinning = false;
         spinBtn.disabled = false;
       }, 14000);
