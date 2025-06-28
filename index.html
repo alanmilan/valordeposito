@@ -338,7 +338,7 @@
         winSound.play();
 
         let textoPremio = premioFinal.valor === "REPICKADO" ? premioFinal.valor : `R$${premioFinal.valor}`;
-        resultado.textContent = `Você ganhou: ${premioFinal.valor === "REPICKADO" ? premioFinal.valor : `$${premioFinal.valor}`}! 🎉`;
+        resultado.textContent = `Você ganhou um deposito no valor de: ${premioFinal.valor === "REPICKADO" ? premioFinal.valor : `$${premioFinal.valor}`}! 🎉`;
         probReal.textContent = `Probabilidade: ${(r * 100).toFixed(2)}%`;
         isSpinning = false;
         spinBtn.disabled = false;
