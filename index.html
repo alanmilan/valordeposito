@@ -171,6 +171,23 @@
     color: #ccc;
     min-height: 24px;
   }
+
+  footer {
+  margin-top: 40px;
+  padding: 20px 0;
+  color: #aaa;
+  font-size: 14px;
+}
+
+  footer a {
+  color: #c90000;
+  text-decoration: none;
+}
+
+  footer a:hover {
+  text-decoration: underline;
+  color: #c90000;
+}
   </style>
 </head>
 <body>
@@ -191,10 +208,6 @@
     <button id="resetBtn">Resetar</button>
   </div>
 
-  <footer>
-    Feito por <a href="https://github.com/alanmilan" target="_blank" rel="noopener noreferrer">Alan Milan</a>
-  </footer>
-  
   <h2 id="resultado"></h2>
   <p id="probReal"></p>
 
@@ -326,7 +339,7 @@
 
         let textoPremio = premioFinal.valor === "REPICKADO" ? premioFinal.valor : `R$${premioFinal.valor}`;
         resultado.textContent = `Você ganhou: ${textoPremio}! 🎉`;
-        probReal.textContent = `Probabilidade: ${(r * 100).toFixed(2)}%`;
+        probReal.textContent = `Número sorteado: ${(r * 100).toFixed(2)}%`;
         isSpinning = false;
         spinBtn.disabled = false;
       }, 14000);
@@ -349,5 +362,12 @@
     preencherTabelaProbabilidades();
     gerarItens();
   </script>
+
+
+  <footer>
+    Feito por <a href="https://github.com/alanmilan" target="_blank" rel="noopener noreferrer">Alan Milan</a>
+  </footer>
 </body>
+
+
 </html>
