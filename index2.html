@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Roleta de Prêmios</title>
+  <style>
+    body {
+      background: #121212;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .roleta-container {
+      width: 90%;
+      max-width: 900px;
+      margin: 30px auto;
+      overflow: hidden;
+      border: 3px solid #333;
+      border-radius: 15px;
+      background: #1c1c1c;
+      position: relative;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .roleta {
+      display: flex;
+      position: relative;
+      transition: transform 0.5s ease;
+    }
+
+    .item {
+      min-width: 180px;
+      height: 180px;
+      margin: 0 10px;
+      background: #2c2f4a;
+      border-radius: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      padding: 15px;
+      box-sizing: border-box;
+      flex-shrink: 0;
+      white-space: nowrap;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .item.highlight {
+      background: #1eaf4d;
+      box-shadow: 0 0 25px #00ff99, inset 0 0 10px rgba(255, 255, 255, 0.5);
+      transform: scale(1.15);
+      transition: all 0.3s ease;
+    }
+
+    .roleta-pointer {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-top: 30px solid #ffcc00;
+      z-index: 10;
+      filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.7));
+    }
+
+    button {
+      margin: 15px;
+      background: #00c97b;
+      color: white;
+      padding: 15px 25px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    button:hover {
+      background: #00e08c;
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      background: #555;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    button#resetBtn {
+      background: #d14141;
+    }
+
+    button#resetBtn:hover {
+      background: #e05151;
+    }
+
+    .emoji {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    #resultado {
+      margin-top: 30px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #00ff99;
+      text-shadow: 0 0 10px rgba(0, 255, 153, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <h1>Valor depósito CSGO.net</h1>
+  <div class="roleta-container">
+    <div class="roleta" id="roleta"></div>
+    <div class="roleta-pointer"></div>
+  </div>
+
+  <button id="spinBtn">Girar Roleta</button>
+  <button id="resetBtn">Resetar</button>
+
+  <h2 id="resultado"></h2>
+
+  <audio id="tickSound" src="tick_sound.mp3" preload="auto"></audio>
+  <audio id="winSound" src="https://www.soundjay.com/button/button-3.wav" preload="auto"></audio>
+  <script>
+    const premios = [
+      { valor: 150, prob: 0.40, emoji: "💸" },
+      { valor: 200, prob: 0.25, emoji: "🪙" },
+      { valor: 250, prob: 0.20, emoji: "💰" },
+      { valor: 350, prob: 0.10, emoji: "🏆" },
+      { valor: 400, prob: 0.04, emoji: "💎" },
+      { valor: 500, prob: 0.01, emoji: "👑" }
+    ];
+
+    const roleta = document.getElementById("roleta");
+    const resultado = document.getElementById("resultado");
+    const spinBtn = document.getElementById("spinBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const winSound = document.getElementById("winSound");
+    const tickSound = document.getElementById("tickSound");
+
+    let isSpinning = false;
+    let itemFullWidth = 200;
+    let clones = [];
+
+    function escolherPremio() {
+      let r = Math.random();
+      let acumulado = 0;
+      for (let premio of premios) {
+        acumulado += premio.prob;
+        if (r < acumulado) return premio;
+      }
+      return premios[premios.length - 1];
+    }
+
+    function gerarItens() {
+      roleta.innerHTML = "";
+      clones = [];
+      for (let i = 0; i < 120; i++) {
+        const premio = escolherPremio();
+        const item = document.createElement("div");
+        item.className = "item";
+        item.dataset.valor = premio.valor;
+        item.innerHTML = `<div class="emoji">${premio.emoji}</div>R$${premio.valor}`;
+        roleta.appendChild(item);
+        clones.push(item);
+      }
+      roleta.style.transition = "none";
+      roleta.style.transform = "translateX(0)";
+    }
+
+    function iniciarTickDuranteGiro(duracaoTotal) {
+  let lastX = null;
+  let lastTickTime = 0;
+  let lastHighlightIndex = -1;
+  const tickIntervalMin = 30;  // tempo mínimo entre beeps
+  const tickIntervalMax = 300; // tempo máximo entre beeps (mais lento no final)
+  const startTime = performance.now();
+  const roletaEl = roleta;
+  const containerCenter = roleta.parentElement.offsetWidth / 2;
+
+  function tickLoop(now) {
+    const elapsed = now - startTime;
+    if (elapsed >= duracaoTotal - 800) return; // Para antes da roleta parar
+
+    const matrix = new DOMMatrix(getComputedStyle(roletaEl).transform);
+    const currentX = matrix.m41;
+
+    if (lastX !== null) {
+      const delta = Math.abs(currentX - lastX);
+
+      // Calcula intervalo ideal entre ticks com base na velocidade (quanto mais rápido, menor o intervalo)
+      const idealInterval = Math.max(tickIntervalMin, Math.min(tickIntervalMax, 1000 / (delta + 0.1)));
+
+      if (now - lastTickTime > idealInterval) {
+        // Calcula índice aproximado do item central
+        const visualCenter = Math.abs(currentX) + containerCenter;
+        const index = Math.floor(visualCenter / itemFullWidth);
+
+        if (index !== lastHighlightIndex) {
+          tickSound.pause();
+          tickSound.currentTime = 0;
+          tickSound.play();
+          lastTickTime = now;
+          lastHighlightIndex = index;
+        }
+      }
+    }
+
+    lastX = currentX;
+    requestAnimationFrame(tickLoop);
+  }
+
+  requestAnimationFrame(tickLoop);
+}
+
+    function girarRoleta() {
+      if (isSpinning) return;
+      isSpinning = true;
+      spinBtn.disabled = true;
+      resultado.textContent = "";
+
+      const premioFinal = escolherPremio();
+      const indexAlvo = clones.findIndex((i, idx) => parseInt(i.dataset.valor) === premioFinal.valor && idx > 40);
+      const index = indexAlvo !== -1 ? indexAlvo : 80;
+
+      const destino = index * itemFullWidth - roleta.parentElement.offsetWidth / 2 + itemFullWidth / 2;
+
+      requestAnimationFrame(() => {
+        roleta.style.transition = "transform 14s cubic-bezier(0.16, 1, 0.3, 1)";
+        roleta.style.transform = `translateX(-${destino}px)`;
+      });
+
+      iniciarTickDuranteGiro(14000);
+      
+
+      setTimeout(() => {
+        clones.forEach(i => i.classList.remove("highlight"));
+        clones[index].classList.add("highlight");
+        winSound.play();
+        resultado.textContent = `Você ganhou: R$${premioFinal.valor}! 🎉`;
+        isSpinning = false;
+        spinBtn.disabled = false;
+      }, 14000);
+    }
+
+    spinBtn.addEventListener("click", () => {
+      if (isSpinning) return;
+      gerarItens();
+      setTimeout(() => girarRoleta(), 100);
+    });
+
+    resetBtn.addEventListener("click", () => {
+      gerarItens();
+      resultado.textContent = "";
+      isSpinning = false;
+      spinBtn.disabled = false;
+    });
+
+    gerarItens();
+  </script>
+</body>
+</html>
