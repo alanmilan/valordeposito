@@ -205,7 +205,7 @@
 
   <div>
     <button id="spinBtn">Girar Roleta</button>
-    <button id="resetBtn">Resetar</button>
+    
   </div>
 
   <h2 id="resultado"></h2>
@@ -351,13 +351,7 @@
       setTimeout(() => girarRoleta(), 100);
     });
 
-    resetBtn.addEventListener("click", () => {
-      gerarItens();
-      resultado.textContent = "";
-      probReal.textContent = "";
-      isSpinning = false;
-      spinBtn.disabled = false;
-    });
+
 
     preencherTabelaProbabilidades();
     gerarItens();
