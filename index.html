@@ -138,6 +138,37 @@
       to { opacity: 0.8; }
     }
 
+    /* Estilos para explosão REPICK */
+    #explosao {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, #ff0000, transparent 60%);
+      border-radius: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 1000;
+      animation: none;
+    }
+
+    @keyframes boom {
+      0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0.9;
+      }
+      50% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(2);
+        opacity: 0;
+      }
+    }
+
     button {
       margin: 15px 10px;
       background: #00c97b;
@@ -166,9 +197,8 @@
       margin-top: 30px;
       font-size: 28px;
       font-weight: bold;
-      color: #00ff99;
-      text-shadow: 0 0 10px rgba(0, 255, 153, 0.5);
       min-height: 40px;
+      text-shadow: 0 0 10px rgba(0, 255, 153, 0.5);
     }
 
     #probReal {
@@ -177,8 +207,6 @@
       color: #ccc;
       min-height: 24px;
     }
-
-
 
     footer {
       margin-top: 40px;
@@ -196,7 +224,6 @@
       text-decoration: underline;
       color: #c90000;
     }
-  
   </style>
 </head>
 <body>
@@ -218,6 +245,7 @@
   <p id="probReal"></p>
 
   <div id="confetti"></div>
+  <div id="explosao"></div> <!-- Explosão visual para REPICK -->
 
   <audio id="tickSound" src="tick_sound.mp3" preload="auto"></audio>
   <audio id="winSound" src="https://www.soundjay.com/button/button-3.wav" preload="auto"></audio>
@@ -225,13 +253,13 @@
   <script>
     const premios = [
       { valor: "REPICK", prob: 0.01, emoji: "🌀 REPICK", faixa: "1%" },
-      { valor: 100, prob: 0.03, emoji: "😭", faixa: "3%" },
-      { valor: 125, prob: 0.15, emoji: "🔪", faixa: "15%" },
-      { valor: 150, prob: 0.50, emoji: "💸", faixa: "50%" },
-      { valor: 200, prob: 0.15, emoji: "🪙", faixa: "15%" },
-      { valor: 250, prob: 0.10, emoji: "💰", faixa: "10%" },
-      { valor: 300, prob: 0.05, emoji: "💎", faixa: "5%" },
-      { valor: 500, prob: 0.01, emoji: "👑", faixa: "1%" }
+      { valor: 100,   prob: 0.03, emoji: "😭", faixa: "3%" },
+      { valor: 125,   prob: 0.15, emoji: "🔪", faixa: "15%" },
+      { valor: 150,   prob: 0.50, emoji: "💸", faixa: "50%" },
+      { valor: 200,   prob: 0.15, emoji: "🪙", faixa: "15%" },
+      { valor: 250,   prob: 0.10, emoji: "💰", faixa: "10%" },
+      { valor: 300,   prob: 0.05, emoji: "💎", faixa: "5%" },
+      { valor: 500,   prob: 0.01, emoji: "👑", faixa: "1%" }
     ];
 
     const roleta = document.getElementById("roleta");
@@ -243,7 +271,7 @@
     const confetti = document.getElementById("confetti");
 
     let isSpinning = false;
-    let itemFullWidth = 200;
+    const itemFullWidth = 200;
     let clones = [];
 
     function preencherBarraPremios() {
@@ -275,7 +303,9 @@
         const item = document.createElement("div");
         item.className = "item";
         item.dataset.valor = premio.valor;
-        item.innerHTML = `<div class="emoji">${premio.emoji}</div>${premio.valor === "REPICK" ? premio.valor : `$${premio.valor}`}`;
+        item.innerHTML = premio.valor === "REPICK"
+          ? `<div class="emoji">${premio.emoji}</div>`
+          : `<div class="emoji">${premio.emoji}</div>$${premio.valor}`;
         roleta.appendChild(item);
         clones.push(item);
       }
@@ -284,35 +314,29 @@
     }
 
     function iniciarTickDuranteGiro(duracaoTotal) {
-      let lastX = null;
-      let lastTickTime = 0;
-      let lastHighlightIndex = -1;
-      const tickIntervalMin = 30;
-      const tickIntervalMax = 300;
+      let lastX = null, lastTickTime = 0, lastHighlightIndex = -1;
+      const tickIntervalMin = 30, tickIntervalMax = 300;
       const startTime = performance.now();
       const containerCenter = roleta.parentElement.offsetWidth / 2;
 
       function tickLoop(now) {
         const elapsed = now - startTime;
         if (elapsed >= duracaoTotal - 800) return;
-
         const matrix = new DOMMatrix(getComputedStyle(roleta).transform);
         const currentX = matrix.m41;
 
         if (lastX !== null) {
           const delta = Math.abs(currentX - lastX);
           const idealInterval = Math.max(tickIntervalMin, Math.min(tickIntervalMax, 1000 / (delta + 0.1)));
-
           if (now - lastTickTime > idealInterval) {
             const visualCenter = Math.abs(currentX) + containerCenter;
-            const index = Math.floor(visualCenter / itemFullWidth);
-
-            if (index !== lastHighlightIndex) {
+            const idx = Math.floor(visualCenter / itemFullWidth);
+            if (idx !== lastHighlightIndex) {
               tickSound.pause();
               tickSound.currentTime = 0;
               tickSound.play();
               lastTickTime = now;
-              lastHighlightIndex = index;
+              lastHighlightIndex = idx;
             }
           }
         }
@@ -353,7 +377,19 @@
           setTimeout(() => confetti.style.display = "none", 2500);
         }
 
-        resultado.textContent = `Você ganhou um depósito no valor de: ${premioFinal.valor === "REPICK" ? premioFinal.valor : `$${premioFinal.valor}`}! 🎉`;
+        if (premioFinal.valor === "REPICK") {
+          resultado.style.color = "#ff3333";
+          resultado.textContent = "VOCÊ FOI REPICKADO 😭";
+
+          const explosao = document.getElementById("explosao");
+          explosao.style.animation = "none";
+          explosao.offsetHeight;
+          explosao.style.animation = "boom 0.6s ease-out";
+        } else {
+          resultado.style.color = "#00ff99";
+          resultado.textContent = `Você ganhou um depósito no valor de: $${premioFinal.valor}! 🎉`;
+        }
+
         probReal.textContent = `Probabilidade: ${(r * 100).toFixed(2)}%`;
         isSpinning = false;
         spinBtn.disabled = false;
@@ -370,8 +406,10 @@
     gerarItens();
   </script>
 
-    <footer>
-    Feito por <a href="https://github.com/alanmilan" target="_blank" rel="noopener noreferrer">Alan Milan - ShadowSong</a>
+  <footer>
+    Feito por <a href="https://github.com/alanmilan" target="_blank" rel="noopener noreferrer">
+      Alan Milan - ShadowSong
+    </a>
   </footer>
 </body>
 </html>
