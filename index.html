@@ -4,245 +4,256 @@
   <meta charset="UTF-8" />
   <title>Roleta de Prêmios</title>
   <style>
-  body {
-    background: #070a1a;
-    color: white;
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding: 30px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    margin: 0;
-    overflow: hidden;
-  }
+    body {
+      background: #070a1a;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
 
-  .tabela-probabilidades {
-    background: #2c2f4a;
-    padding: 8px 12px; /* compactado */
-    border-radius: 8px;
-    border: 1px solid #333;
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    font-size: 14px; /* menor */
-    margin-bottom: 15px; /* menor espaço abaixo */
-    width: 90%;
-    max-width: 600px; /* menor largura máxima */
-    text-align: center;
-  }
+    .roleta-container {
+      width: 90%;
+      max-width: 900px;
+      margin: 30px auto 0 auto;
+      overflow: hidden;
+      border: 3px solid #333;
+      border-radius: 15px;
+      background: #1c1c1c;
+      position: relative;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    }
 
-  .tabela-probabilidades h3 {
-    color: #ffcc00;
-    margin-bottom: 10px;
-    font-size: 24px;
-  }
+    .roleta {
+      display: flex;
+      position: relative;
+      transition: transform 0.5s ease;
+    }
 
-  .tabela-probabilidades ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: inline-flex;
-    flex-wrap: wrap;
-    gap: 10px; /* menor gap */
-    justify-content: center;
-  }
+    .item {
+      min-width: 180px;
+      height: 180px;
+      margin: 0 10px;
+      background: #2c2f4a;
+      border-radius: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      padding: 15px;
+      box-sizing: border-box;
+      flex-shrink: 0;
+      white-space: nowrap;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+    }
 
-  .tabela-probabilidades li {
-    font-size: 14px; /* menor fonte */
-    display: flex;
-    align-items: center;
-    gap: 5px; /* menor gap */
-    white-space: nowrap;
-    padding: 2px 6px;
-  }
+    .item.highlight {
+      background: #1eaf4d;
+      box-shadow: 0 0 25px #00ff99, inset 0 0 10px rgba(255, 255, 255, 0.5);
+      transform: scale(1.15);
+      transition: all 0.3s ease;
+    }
 
-  .roleta-container {
-    width: 90%;
-    max-width: 900px;
-    margin: 30px auto 0 auto;
-    overflow: hidden;
-    border: 3px solid #333;
-    border-radius: 15px;
-    background: #1c1c1c;
-    position: relative;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-  }
+    .roleta-pointer {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-top: 30px solid #ffcc00;
+      z-index: 10;
+      filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.7));
+    }
 
-  .roleta {
-    display: flex;
-    position: relative;
-    transition: transform 0.5s ease;
-  }
+    .premios-barra {
+      display: flex;
+      justify-content: center;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      margin-top: 20px;
+      border-radius: 10px;
+      background: #0c0c1f;
+      padding: 5px;
+      gap: 2px;
+    }
 
-  .item {
-    min-width: 180px;
-    height: 180px;
-    margin: 0 10px;
-    background: #2c2f4a;
-    border-radius: 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    font-weight: bold;
-    padding: 15px;
-    box-sizing: border-box;
-    flex-shrink: 0;
-    white-space: nowrap;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
-  }
+    .premio-box {
+      flex: 1;
+      min-width: 100px;
+      text-align: center;
+      padding: 8px 6px;
+      color: #fff;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
 
-  .item.highlight {
-    background: #1eaf4d;
-    box-shadow: 0 0 25px #00ff99, inset 0 0 10px rgba(255, 255, 255, 0.5);
-    transform: scale(1.15);
-    transition: all 0.3s ease;
-  }
+    .premio-100 { background: #5dade2; }
+    .premio-125 { background: #48c9b0; }
+    .premio-150 { background: #2ecc71; }
+    .premio-200 { background: #27ae60; }
+    .premio-250 { background: #2980b9; }
+    .premio-300 {
+      background: linear-gradient(45deg, #8e44ad, #9b59b6);
+      color: #fff;
+    }
+    .premio-500 {
+      background: linear-gradient(45deg, #f39c12, #f1c40f);
+      color: #000;
+      text-shadow: 0 0 3px #fff;
+    }
+    .premio-REPICK {
+      background: #8e44ad;
+      font-size: 14px;
+    }
 
-  .roleta-pointer {
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
-    border-top: 30px solid #ffcc00;
-    z-index: 10;
-    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.7));
-  }
+    #confetti {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+      animation: piscar 0.15s infinite alternate;
+      display: none;
+      z-index: 999;
+    }
 
-  button {
-    margin: 15px 10px;
-    background: #00c97b;
-    color: white;
-    padding: 15px 25px;
-    font-size: 18px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
-  }
+    @keyframes piscar {
+      from { opacity: 0.2; }
+      to { opacity: 0.8; }
+    }
 
-  button:hover {
-    background: #00e08c;
-    transform: translateY(-2px);
-  }
+    button {
+      margin: 15px 10px;
+      background: #00c97b;
+      color: white;
+      padding: 15px 25px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+    }
 
-  button:active {
-    transform: translateY(0);
-  }
+    button:hover {
+      background: #00e08c;
+      transform: translateY(-2px);
+    }
 
-  button:disabled {
-    background: #555;
-    cursor: not-allowed;
-    opacity: 0.7;
-  }
+    button:disabled {
+      background: #555;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
 
-  button#resetBtn {
-    background: #d14141;
-  }
+    #resultado {
+      margin-top: 30px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #00ff99;
+      text-shadow: 0 0 10px rgba(0, 255, 153, 0.5);
+      min-height: 40px;
+    }
 
-  button#resetBtn:hover {
-    background: #e05151;
-  }
+    #probReal {
+      margin-top: 10px;
+      font-size: 18px;
+      color: #ccc;
+      min-height: 24px;
+    }
 
-  .emoji {
-    font-size: 48px;
-    margin-bottom: 10px;
-  }
 
-  #resultado {
-    margin-top: 30px;
-    font-size: 28px;
-    font-weight: bold;
-    color: #00ff99;
-    text-shadow: 0 0 10px rgba(0, 255, 153, 0.5);
-    min-height: 40px;
-  }
 
-  #probReal {
-    margin-top: 10px;
-    font-size: 18px;
-    color: #ccc;
-    min-height: 24px;
-  }
+    footer {
+      margin-top: 40px;
+      padding: 20px 0;
+      color: #aaa;
+      font-size: 14px;
+    }
 
-  footer {
-  margin-top: 40px;
-  padding: 20px 0;
-  color: #aaa;
-  font-size: 14px;
-}
+    footer a {
+      color: #c90000;
+      text-decoration: none;
+    }
 
-  footer a {
-  color: #c90000;
-  text-decoration: none;
-}
-
-  footer a:hover {
-  text-decoration: underline;
-  color: #c90000;
-}
+    footer a:hover {
+      text-decoration: underline;
+      color: #c90000;
+    }
+  
   </style>
 </head>
 <body>
-  <h1>Valor depósito CSGO.net</h1>
-
-  <div class="tabela-probabilidades">
-    <h3>Prêmios e Probabilidades</h3>
-    <ul id="listaPremios"></ul>
-  </div>
+  <h1>ROLETA DA GANÂNCIA</h1>
+  <h2>Valor depósito CSGO.net</h2>
 
   <div class="roleta-container">
     <div class="roleta" id="roleta"></div>
     <div class="roleta-pointer"></div>
   </div>
 
+  <div class="premios-barra" id="barraPremios"></div>
+
   <div>
     <button id="spinBtn">Girar Roleta</button>
-    
   </div>
 
   <h2 id="resultado"></h2>
   <p id="probReal"></p>
+
+  <div id="confetti"></div>
 
   <audio id="tickSound" src="tick_sound.mp3" preload="auto"></audio>
   <audio id="winSound" src="https://www.soundjay.com/button/button-3.wav" preload="auto"></audio>
 
   <script>
     const premios = [
-      { valor: 150, prob: 0.40, emoji: "💸" },
-      { valor: 200, prob: 0.25, emoji: "🪙" },
-      { valor: 250, prob: 0.20, emoji: "💰" },
-      { valor: 350, prob: 0.10, emoji: "🏆" },
-      { valor: 400, prob: 0.04, emoji: "💎" },
-      { valor: 500, prob: 0.01, emoji: "👑" },
-      { valor: "REPICKADO", prob: 0.005, emoji: "🌀" }
+      { valor: "REPICK", prob: 0.01, emoji: "🌀", faixa: "1%" },
+      { valor: 100, prob: 0.03, emoji: "😭", faixa: "3%" },
+      { valor: 125, prob: 0.15, emoji: "🔪", faixa: "15%" },
+      { valor: 150, prob: 0.50, emoji: "💸", faixa: "50%" },
+      { valor: 200, prob: 0.15, emoji: "🪙", faixa: "15%" },
+      { valor: 250, prob: 0.10, emoji: "💰", faixa: "10%" },
+      { valor: 300, prob: 0.05, emoji: "💎", faixa: "5%" },
+      { valor: 500, prob: 0.01, emoji: "👑", faixa: "1%" }
     ];
 
     const roleta = document.getElementById("roleta");
     const resultado = document.getElementById("resultado");
     const probReal = document.getElementById("probReal");
     const spinBtn = document.getElementById("spinBtn");
-    const resetBtn = document.getElementById("resetBtn");
     const winSound = document.getElementById("winSound");
     const tickSound = document.getElementById("tickSound");
+    const confetti = document.getElementById("confetti");
 
     let isSpinning = false;
     let itemFullWidth = 200;
     let clones = [];
 
-    function preencherTabelaProbabilidades() {
-      const ul = document.getElementById("listaPremios");
-      ul.innerHTML = "";
+    function preencherBarraPremios() {
+      const barra = document.getElementById("barraPremios");
+      barra.innerHTML = "";
       premios.forEach(p => {
-        let textoValor = (p.valor === "REPICKADO") ? p.valor : `$${p.valor}`;
-        ul.innerHTML += `<li>${p.emoji} ${Math.round(p.prob * 100)}% = ${textoValor}</li>`;
+        const div = document.createElement("div");
+        div.className = `premio-box premio-${p.valor}`;
+        div.innerHTML = `${p.emoji} ${p.valor === "REPICK" ? "" : "$" + p.valor}<br><small>${p.faixa}</small>`;
+        barra.appendChild(div);
       });
     }
 
@@ -263,8 +274,8 @@
         const { premio } = escolherPremio();
         const item = document.createElement("div");
         item.className = "item";
-        item.dataset.valor = (premio.valor === "REPICKADO") ? "REPICKADO" : premio.valor;
-        item.innerHTML = `<div class="emoji">${premio.emoji}</div>${(premio.valor === "REPICKADO") ? premio.valor : `$${premio.valor}`}`;
+        item.dataset.valor = premio.valor;
+        item.innerHTML = `<div class="emoji">${premio.emoji}</div>${premio.valor === "REPICK" ? premio.valor : `$${premio.valor}`}`;
         roleta.appendChild(item);
         clones.push(item);
       }
@@ -337,8 +348,12 @@
         clones[index].classList.add("highlight");
         winSound.play();
 
-        let textoPremio = premioFinal.valor === "REPICKADO" ? premioFinal.valor : `R$${premioFinal.valor}`;
-        resultado.textContent = `Você ganhou um deposito no valor de: ${premioFinal.valor === "REPICKADO" ? premioFinal.valor : `$${premioFinal.valor}`}! 🎉`;
+        if (typeof premioFinal.valor === "number" && premioFinal.valor > 200) {
+          confetti.style.display = "block";
+          setTimeout(() => confetti.style.display = "none", 2500);
+        }
+
+        resultado.textContent = `Você ganhou um depósito no valor de: ${premioFinal.valor === "REPICK" ? premioFinal.valor : `$${premioFinal.valor}`}! 🎉`;
         probReal.textContent = `Probabilidade: ${(r * 100).toFixed(2)}%`;
         isSpinning = false;
         spinBtn.disabled = false;
@@ -351,17 +366,12 @@
       setTimeout(() => girarRoleta(), 100);
     });
 
-
-
-    preencherTabelaProbabilidades();
+    preencherBarraPremios();
     gerarItens();
   </script>
 
-
-  <footer>
+    <footer>
     Feito por <a href="https://github.com/alanmilan" target="_blank" rel="noopener noreferrer">Alan Milan - ShadowSong</a>
   </footer>
 </body>
-
-
 </html>
